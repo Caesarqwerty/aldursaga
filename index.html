@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expedition Saga Advisor — PoE 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Forum&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f0e;
+    --wood:#1d1409;
+    --wood-2:#2b1f12;
+    --wood-3:#3a2a18;
+    --gold:#c8a14b;
+    --gold-bright:#e9cd83;
+    --gold-dim:#8a6f37;
+    --parch:#e9dec1;
+    --parch-2:#ddcfac;
+    --ink:#2a2014;
+    --ink-soft:#5f5037;
+    --danger:#b1442b;
+    --danger-deep:#7d2c1c;
+    --unique:#c1781f;
+    --good:#62965a;
+    --good-deep:#3f6a39;
+    --muted:#a89876;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 640px at 50% -8%, rgba(200,161,75,.10), transparent 62%),
+      radial-gradient(800px 560px at 92% 112%, rgba(177,68,43,.07), transparent 60%),
+      var(--bg);
+    color:#ece4d2;
+    font-family:'PT Serif', Georgia, serif;
+    font-size:16.5px;line-height:1.5;
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1190px;margin:0 auto;padding:30px 18px 70px;}
+
+  /* ---- Ornate frame ---- */
+  .frame{
+    position:relative;
+    background:
+      linear-gradient(180deg, rgba(43,31,18,.55), rgba(20,14,8,.65)),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.012) 0 2px, transparent 2px 6px);
+    border:1px solid var(--gold-dim);
+    border-radius:6px;
+    box-shadow:0 0 0 1px rgba(0,0,0,.6), 0 0 0 6px rgba(29,20,9,.9), 0 18px 50px rgba(0,0,0,.55);
+    padding:34px 30px 30px;
+  }
+  .frame::before{
+    content:"";position:absolute;inset:7px;border:1px solid rgba(200,161,75,.28);
+    border-radius:3px;pointer-events:none;
+  }
+  .corner{position:absolute;width:14px;height:14px;border:2px solid var(--gold);opacity:.85;z-index:2;}
+  .corner.tl{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .corner.tr{top:-1px;right:-1px;border-left:none;border-bottom:none;}
+  .corner.bl{bottom:-1px;left:-1px;border-right:none;border-top:none;}
+  .corner.br{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .corner::after{content:"";position:absolute;width:5px;height:5px;background:var(--gold);
+    transform:rotate(45deg);top:-3px;left:-3px;}
+
+  /* ---- Header ---- */
+  header{text-align:center;margin-bottom:6px;}
+  .eyebrow{
+    font-family:'Forum',serif;letter-spacing:.4em;text-transform:uppercase;
+    font-size:12px;color:var(--gold);opacity:.9;margin-bottom:8px;
+  }
+  h1{
+    font-family:'Forum',serif;font-weight:400;
+    font-size:clamp(32px,5.4vw,52px);
+    color:var(--gold-bright);margin:0 0 4px;letter-spacing:.06em;text-transform:uppercase;
+    text-shadow:0 2px 0 rgba(0,0,0,.55), 0 0 26px rgba(200,161,75,.2);
+  }
+  .flourish{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px auto 12px;max-width:340px;}
+  .flourish .ln{height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);}
+  .flourish .dia{width:7px;height:7px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 8px rgba(200,161,75,.5);}
+  .sub{color:#cdbf9f;font-size:18px;max-width:680px;margin:0 auto;}
+
+  .howto{
+    background:linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.16));
+    border:1px solid rgba(200,161,75,.22);border-left:3px solid var(--gold);border-radius:6px;
+    padding:15px 20px;margin:20px 0 4px;color:#d4c8aa;font-size:15.5px;line-height:1.58;
+  }
+  .howto b{color:var(--gold-bright);font-weight:700;}
+  .howto.dir{display:flex;gap:14px;align-items:flex-start;border-left-color:var(--gold-bright);margin-top:12px;background:linear-gradient(180deg, rgba(200,161,75,.10), rgba(0,0,0,.14));}
+  .howto.dir .dir-icon{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold-bright);font-size:17px;margin-top:1px;}
+
+  /* ---- Layout ---- */
+  .grid{display:grid;grid-template-columns:1fr 372px;gap:28px;margin-top:26px;align-items:start;}
+  @media(max-width:920px){.grid{grid-template-columns:1fr;}}
+
+  /* ---- Sections / plaque ---- */
+  .section{margin-bottom:24px;}
+  .plaque{
+    display:flex;align-items:center;gap:12px;margin:0 0 15px;
+  }
+  .plaque .badge{
+    font-family:'Forum',serif;font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:#1c140a;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    padding:6px 18px;border-radius:3px;
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 2px 6px rgba(0,0,0,.5), 0 0 0 1px var(--gold-dim);
+  }
+  .plaque .ln{flex:1;height:1px;background:linear-gradient(90deg,rgba(200,161,75,.5),transparent);}
+  .plaque .note{
+    font-family:'Forum',serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    padding:3px 10px;border-radius:2px;border:1px solid;
+  }
+  .note-default{color:#cdbf9a;border-color:rgba(205,191,154,.35);}
+  .note-boss{color:#e79077;border-color:rgba(177,68,43,.55);background:rgba(177,68,43,.10);}
+  .note-unique{color:#e6a85f;border-color:rgba(193,120,31,.5);background:rgba(193,120,31,.10);}
+  .note-unknown{color:#a89876;border-color:rgba(168,152,118,.35);}
+
+  /* ---- Cards ---- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:13px;}
+  .card{
+    position:relative;cursor:pointer;text-align:left;border:none;
+    background:
+      linear-gradient(176deg,var(--parch),var(--parch-2)),
+      radial-gradient(circle at 80% 12%, rgba(150,120,70,.10), transparent 40%);
+    color:var(--ink);border-radius:5px;padding:13px 15px 14px;
+    box-shadow:0 2px 7px rgba(0,0,0,.42), inset 0 0 0 1px rgba(120,98,60,.28);
+    transition:transform .12s ease, box-shadow .15s ease;font-family:inherit;
+  }
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:5px 0 0 5px;background:#b3a279;opacity:.6;}
+  .card.cat-boss::before{background:var(--danger);opacity:.9;}
+  .card.cat-unique::before{background:var(--unique);opacity:.9;}
+  .card.cat-unknown::before{background:#8c7d5f;opacity:.7;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 7px 16px rgba(0,0,0,.5), inset 0 0 0 1px rgba(120,98,60,.32);}
+  .card .rumour{font-family:'Caveat',cursive;font-size:25px;line-height:1.04;color:#22190d;font-weight:600;margin-bottom:4px;}
+  .card .map{font-size:15px;font-weight:700;color:#523f1f;letter-spacing:.01em;font-family:'PT Serif',serif;}
+  .card .desc{font-size:13.5px;color:#665436;line-height:1.36;margin-top:4px;}
+  .card .check{
+    position:absolute;top:10px;right:11px;width:21px;height:21px;border-radius:50%;
+    border:1.5px solid rgba(90,74,46,.45);display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:transparent;transition:all .12s ease;font-weight:700;
+  }
+  .card.on{box-shadow:0 0 0 2px var(--gold), 0 7px 18px rgba(0,0,0,.55), inset 0 0 0 1px rgba(120,98,60,.3);transform:translateY(-2px);}
+  .card.on .check{background:var(--good);border-color:var(--good-deep);color:#0c1312;}
+  .card.on.cat-boss .check{background:var(--danger);border-color:var(--danger-deep);color:#fff;}
+  .card.on.cat-unique .check{background:var(--unique);border-color:#8a560f;color:#1a1206;}
+
+  /* ---- Verdict panel ---- */
+  .panel{
+    position:sticky;top:18px;
+    background:linear-gradient(180deg,var(--wood-3),var(--wood));
+    border:1px solid var(--gold-dim);border-radius:8px;
+    box-shadow:0 0 0 1px rgba(0,0,0,.5), 0 14px 36px rgba(0,0,0,.5);
+    overflow:hidden;
+  }
+  .panel::before{content:"";position:absolute;inset:5px;border:1px solid rgba(200,161,75,.2);border-radius:4px;pointer-events:none;z-index:1;}
+  .panel-head{text-align:center;padding:15px 18px 11px;border-bottom:1px solid rgba(200,161,75,.2);position:relative;}
+  .panel-head .ph-eye{font-family:'Forum',serif;font-size:13px;letter-spacing:.3em;color:var(--gold-bright);text-transform:uppercase;}
+  .panel-body{padding:20px 18px 20px;position:relative;}
+
+  .seal-wrap{display:flex;justify-content:center;margin:2px 0 18px;}
+  .seal{
+    width:152px;height:152px;border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    transform:rotate(-7deg);border:3px double rgba(255,255,255,.55);
+    font-family:'Forum',serif;transition:all .2s ease;
+  }
+  .seal.idle{background:radial-gradient(circle at 40% 35%,#544530,#33291a);color:#b8a886;border-color:rgba(184,168,134,.4);}
+  .seal.go{background:radial-gradient(circle at 40% 35%,#73a866,#3f6a39);color:#0c1312;border-color:rgba(255,255,255,.66);box-shadow:0 0 28px rgba(98,150,90,.45);}
+  .seal.no{background:radial-gradient(circle at 40% 35%,#c5543a,#7d2c1c);color:#fff;border-color:rgba(255,255,255,.6);box-shadow:0 0 28px rgba(177,68,43,.42);}
+  .seal .verdict{font-size:25px;letter-spacing:.05em;line-height:1;text-transform:uppercase;}
+  .seal .saga{font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin-top:8px;opacity:.92;}
+  .seal .qmark{font-size:46px;}
+
+  .stats{display:flex;gap:8px;margin-bottom:16px;}
+  .stat{flex:1;text-align:center;background:rgba(0,0,0,.24);border:1px solid rgba(200,161,75,.16);border-radius:6px;padding:10px 4px;}
+  .stat .num{font-family:'Forum',serif;font-size:27px;line-height:1;color:#ecdfbb;}
+  .stat .lbl{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  .stat.warn .num{color:#e79077;}
+  .stat.uwarn .num{color:#e6a85f;}
+
+  .reasons{list-style:none;margin:0;padding:0;}
+  .reasons li{
+    font-size:15px;line-height:1.45;padding:9px 11px 9px 30px;position:relative;
+    border-radius:6px;margin-bottom:7px;color:#e0d5bc;background:rgba(0,0,0,.2);
+  }
+  .reasons li::before{position:absolute;left:10px;top:9px;font-size:14px;font-family:'PT Serif',serif;}
+  .reasons li.ok{color:#d3e6c8;} .reasons li.ok::before{content:"✓";color:var(--good);}
+  .reasons li.bad{color:#f2c8bc;} .reasons li.bad::before{content:"✕";color:#e79077;}
+  .reasons li.uniq{color:#f2dab6;} .reasons li.uniq::before{content:"◆";color:var(--unique);}
+  .reasons li.info{color:#d4cbb3;} .reasons li.info::before{content:"›";color:var(--gold-bright);font-size:17px;top:7px;}
+  .reasons li.hint{color:#cfc4a8;} .reasons li.hint::before{content:"✱";color:var(--muted);}
+
+  /* ---- Remnant tips ---- */
+  details.tips{margin-top:16px;border:1px solid rgba(200,161,75,.22);border-radius:6px;background:rgba(0,0,0,.18);overflow:hidden;}
+  details.tips summary{
+    cursor:pointer;list-style:none;padding:11px 14px;
+    font-family:'Forum',serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  details.tips summary::-webkit-details-marker{display:none;}
+  details.tips summary .chev{transition:transform .2s ease;color:var(--gold);}
+  details.tips[open] summary .chev{transform:rotate(90deg);}
+  details.tips .tips-body{padding:2px 16px 14px;}
+  details.tips ul{margin:0;padding:0;list-style:none;}
+  details.tips li{font-size:14px;line-height:1.45;color:#d6cbae;padding:6px 0 6px 18px;position:relative;border-top:1px solid rgba(200,161,75,.10);}
+  details.tips li:first-child{border-top:none;}
+  details.tips li::before{content:"◇";position:absolute;left:0;top:6px;color:var(--gold-dim);font-size:12px;}
+  details.tips b{color:#ecdcb5;}
+
+  .reset{
+    width:100%;margin-top:16px;padding:12px;cursor:pointer;
+    background:linear-gradient(180deg, rgba(200,161,75,.12), rgba(200,161,75,.04));
+    border:1px solid rgba(200,161,75,.42);border-radius:6px;color:var(--gold-bright);
+    font-family:'Forum',serif;font-size:13px;letter-spacing:.16em;text-transform:uppercase;transition:all .15s ease;
+  }
+  .reset:hover{background:rgba(200,161,75,.16);border-color:var(--gold);}
+
+  .foot{text-align:center;color:#7a6e54;font-size:13px;margin-top:30px;letter-spacing:.04em;}
+  .foot span{color:var(--gold);}
+
+  *:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="frame">
+  <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+
+  <header>
+    <div class="eyebrow">Path of Exile 2 · Expedition</div>
+    <h1>Saga Advisor</h1>
+    <div class="flourish"><span class="ln"></span><span class="dia"></span><span class="ln"></span></div>
+    <p class="sub">Отметь все слухи, что видишь в логбуке под разными сагами — печать выдаст вердикт по Aldur-саге.</p>
+  </header>
+
+  <div class="howto">
+    <b>Как пользоваться:</b> переключай саги в игре (Vorana, Medved, Aldur, Olroth, Uhtred) и отмечай здесь каждый <b>новый</b> слух, что вылезает. Когда теги перестали меняться — смотри на печать. Aldur жмём только если регион чистый (нет боссов и уников) и карт <b>4+</b>.<br>
+    <b>Про Aldur:</b> это пятый, редкий босс — «Aldur-сага» названа его именем и стоит дорого (~20 экз). Четыре avoid-босса ниже (Olroth / Uhtred / Vorana / Medved) — другие: они занимают слоты, и в их регион сагу не жмём.
+  </div>
+
+  <div class="howto dir">
+    <span class="dir-icon">➤</span>
+    <div><b>Реврил региона — иди строго в одну сторону.</b> Новый биом открывается от твоего текущего места (взрываешь beacon / лей-линии). Если метаться во все стороны, регионы наслаиваются и слухи «падают» друг на друга — карты теряются и теги не досчитаешь. Держи один вектор → чистый ревил и максимум тегов для проверки саги.</div>
+  </div>
+
+  <div class="grid">
+    <main id="catalog"></main>
+
+    <aside>
+      <div class="panel">
+        <div class="panel-head"><div class="ph-eye">Вердикт</div></div>
+        <div class="panel-body">
+          <div class="seal-wrap"><div class="seal idle" id="seal">
+            <div class="qmark">?</div><div class="saga">Ждём слухи</div>
+          </div></div>
+          <div class="stats">
+            <div class="stat" id="st-maps"><div class="num">0</div><div class="lbl">карт</div></div>
+            <div class="stat" id="st-boss"><div class="num">0</div><div class="lbl">боссов</div></div>
+            <div class="stat" id="st-uniq"><div class="num">0</div><div class="lbl">уников</div></div>
+          </div>
+          <ul class="reasons" id="reasons">
+            <li class="info">Отметь слухи слева, чтобы начать.</li>
+          </ul>
+
+          <details class="tips">
+            <summary>Remnant tips <span class="chev">›</span></summary>
+            <div class="tips-body"><ul>
+              <li><b>5-рунные</b> ремнанты > 3-рунных. 3-рунные пропускай.</li>
+              <li><b>Фиолетовые руны</b> = спец-модификаторы + крупные награды. Проверяй на divine.</li>
+              <li><b>Verisium remnant</b>: 8+ слотов под руны — под него фарми боссов.</li>
+              <li><b>Под результат:</b> level 16 карты + облучённые таблетки (20% задвоить моды).</li>
+              <li>Последняя взрывчатка = чекпоинт к старту. Цепной взрыв — выбей почти всех мобов.</li>
+            </ul></div>
+          </details>
+
+          <button class="reset" id="reset">Сбросить логбук</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="foot">База маппинга — credit: <span>Wyzryn</span> · метод проверки саг по гайдам фарма экспедиций</div>
+ </div>
+</div>
+
+<script>
+const DATA = {
+  default: {
+    label:"Карты экспедиции", note:"под Aldur", noteClass:"note-default",
+    items:[
+      {r:"Sulphite!", m:"Scorched Cay", n:"Хороший лэйаут, rare buffing remnants"},
+      {r:"It's dry at least…", m:"Sloughed Gully", n:"+20% monster effectiveness, плохой лэйаут"},
+      {r:"Cold as ice…", m:"Frigid Bluffs", n:"Сильный monster buffing, бесконечные revives"},
+      {r:"Roaming free…", m:"Grazed Prairie", n:"Azmeri spirits лэйаут, хороший лэйаут"},
+      {r:"Nothing to drink…", m:"Stagnant Basin", n:"Открытый лэйаут, oil derrick remnants (бабах)"},
+      {r:"Unknown ruins…", m:"Exhumed Ruins", n:"Лестницы, precursor leylines, beacon → бесплатный логбук"},
+      {r:"Bleak and awful…", m:"Barren Atoll", n:"Открытый лэйаут, strongbox-гиммик, gold chest"},
+      {r:"Endless cliffs…", m:"Craggy Peninsula", n:"Открытый лэйаут, kin totem remnants, 2 rogue exiles"},
+      {r:"Somethin' fishy…", m:"Bleached Shoals", n:"Плохой лэйаут, слабые remnants, all-res амулет"},
+      {r:"It's warm…", m:"Lush Island", n:"Increased exp, beyond monsters, arohangui's hoard"},
+    ]
+  },
+  boss:{
+    label:"Боссы — избегать", note:"занимают слот", noteClass:"note-boss",
+    items:[
+      {r:"Origin of the fall…", m:"Obscure Island", n:"Босс: Olroth"},
+      {r:"Stardrinker…", m:"Secluded Temple", n:"Босс: Uhtred"},
+      {r:"The last to fall…", m:"Mournful Cliffside", n:"Босс: Vorana"},
+      {r:"End of the circle…", m:"Sprawling Jungle", n:"Босс: Medved"},
+    ]
+  },
+  unique:{
+    label:"Уникальные карты", note:"занимают слот", noteClass:"note-unique",
+    items:[
+      {r:"Fallen stars…", m:"Something Moor", n:"Юник. Бегать в сухую — divination + сустейнит Aldur-сагу", fallen:true},
+      {r:"Fractured something…", m:"Lake of Kalandra", n:"Уникальная карта"},
+      {r:"Almost paradise…", m:"Untainted Paradise", n:"Уникальная карта"},
+      {r:"A good fellow…", m:"Moment of Zen", n:"Уникальная карта"},
+    ]
+  },
+  unknown:{
+    label:"Неопознанные", note:"нет в базе", noteClass:"note-unknown",
+    items:[
+      {r:"Warm but risky…", m:"???", n:"Маппинга нет. Похоже на «тёплую» семью (Lush Island?), но не точно", unmapped:true},
+    ]
+  }
+};
+
+const selected = new Set();
+const catalog = document.getElementById('catalog');
+
+Object.entries(DATA).forEach(([cat, sec])=>{
+  const s = document.createElement('section');
+  s.className='section';
+  s.innerHTML = `<div class="plaque">
+      <span class="badge">${sec.label}</span>
+      <span class="ln"></span>
+      <span class="note ${sec.noteClass}">${sec.note}</span>
+    </div><div class="cards"></div>`;
+  const holder = s.querySelector('.cards');
+  sec.items.forEach((it,i)=>{
+    const id = cat+'_'+i;
+    const b = document.createElement('button');
+    b.className='card cat-'+cat;
+    b.dataset.id=id; b.dataset.cat=cat;
+    b.dataset.fallen = it.fallen?'1':'';
+    b.dataset.unmapped = it.unmapped?'1':'';
+    b.dataset.rumour = it.r; b.dataset.map = it.m;
+    b.innerHTML = `<span class="check">✓</span>
+      <div class="rumour">${it.r}</div>
+      <div class="map">${it.m}</div>
+      <div class="desc">${it.n}</div>`;
+    b.addEventListener('click',()=>{
+      if(selected.has(id)){selected.delete(id);b.classList.remove('on');}
+      else{selected.add(id);b.classList.add('on');}
+      render();
+    });
+    holder.appendChild(b);
+  });
+  catalog.appendChild(s);
+});
+
+const seal = document.getElementById('seal');
+const reasons = document.getElementById('reasons');
+
+function render(){
+  const picks = [...document.querySelectorAll('.card.on')];
+  const maps = picks.length;
+  const bosses = picks.filter(c=>c.dataset.cat==='boss');
+  const uniques = picks.filter(c=>c.dataset.cat==='unique');
+  const unknowns = picks.filter(c=>c.dataset.unmapped==='1');
+  const fallen = picks.find(c=>c.dataset.fallen==='1');
+
+  document.querySelector('#st-maps .num').textContent = maps;
+  document.querySelector('#st-boss .num').textContent = bosses.length;
+  document.querySelector('#st-uniq .num').textContent = uniques.length;
+  document.getElementById('st-boss').classList.toggle('warn', bosses.length>0);
+  document.getElementById('st-uniq').classList.toggle('uwarn', uniques.length>0);
+
+  const R=[];
+  if(maps===0){
+    setSeal('idle','?','Ждём слухи');
+    R.push(['info','Отметь слухи слева, чтобы начать.']);
+    return paint(R);
+  }
+
+  const clean = bosses.length===0 && uniques.length===0;
+  const enough = maps>=4;
+
+  if(clean && enough){
+    setSeal('go','Жми','Aldur-сага');
+    R.push(['ok','Чисто: ни боссов, ни уников.']);
+    R.push(['ok',`${maps} карт — порог 4+ пройден.`]);
+    R.push(['info','Все слоты под дефолтные карты — сага окупится.']);
+  } else {
+    setSeal('no','Не жать','Aldur-сага');
+    if(bosses.length) R.push(['bad',`Босс: ${bosses.map(b=>b.dataset.map).join(', ')} — занимает слот.`]);
+    if(uniques.length) R.push(['uniq',`Уник: ${uniques.map(u=>u.dataset.map).join(', ')} — занимает слот.`]);
+    if(!enough) R.push(['bad',`Только ${maps} карт${maps===1?'а':''} — нужно 4+.`]);
+    if(clean && !enough) R.push(['info','Регион чистый, но мелкий — сагу побереги.']);
+  }
+
+  if(fallen) R.push(['hint','Fallen Stars — бегай в сухую, она сама сустейнит Aldur-саги.']);
+  if(unknowns.length) R.push(['hint',`«${unknowns.map(u=>u.dataset.rumour).join(', ')}» нет в базе — посчитан как карта, проверь вручную.`]);
+  paint(R);
+}
+
+function setSeal(state,verdict,saga){
+  seal.className='seal '+state;
+  seal.innerHTML = state==='idle'
+    ? `<div class="qmark">?</div><div class="saga">${saga}</div>`
+    : `<div class="verdict">${verdict}</div><div class="saga">${saga}</div>`;
+}
+function paint(rows){ reasons.innerHTML = rows.map(([c,t])=>`<li class="${c}">${t}</li>`).join(''); }
+
+document.getElementById('reset').addEventListener('click',()=>{
+  selected.clear();
+  document.querySelectorAll('.card.on').forEach(c=>c.classList.remove('on'));
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
